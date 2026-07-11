@@ -25,6 +25,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.lizongying.mytv0.databinding.SettingsWebBinding
+import java.lang.ref.WeakReference
 import java.util.Locale
 import kotlin.math.abs
 
@@ -43,12 +44,17 @@ class MainActivity : AppCompatActivity() {
     private var programFragment = ProgramFragment()
 
     private val handler = Handler(Looper.myLooper()!!)
+    
+    private lateinit var gestureDetector: GestureDetector
+    private val activityRef = WeakReference(this)
+
+    
     private val delayHideMenu = 10 * 1000L
     private val delayHideSetting = 3 * 60 * 1000L
 
     private var doubleBackToExitPressedOnce = false
 
-    private lateinit var gestureDetector: GestureDetector
+    //private lateinit var gestureDetector: GestureDetector
 
     private var server: SimpleServer? = null
 
@@ -127,7 +133,9 @@ class MainActivity : AppCompatActivity() {
         if (ok == 2) {
             Log.i(TAG, "all ready")
 
-            gestureDetector = GestureDetector(this, GestureListener(this))
+            //gestureDetector = GestureDetector(this, GestureListener(this))
+            // 修改为
+            gestureDetector = GestureDetector(this, GestureListener(WeakReference(this), this))
 
             viewModel.groupModel.change.observe(this) { _ ->
                 Log.i(TAG, "group changed")
@@ -285,7 +293,7 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onTouchEvent(event)
     }
-
+/*************
     private inner class GestureListener(context: Context) :
         GestureDetector.SimpleOnGestureListener() {
 
@@ -423,7 +431,154 @@ class MainActivity : AppCompatActivity() {
             playerFragment.showVolume(View.VISIBLE)
         }
     }
+************************/
+    private class GestureListener(
+    private val activityRef: WeakReference<MainActivity>,
+    context: Context
+) : GestureDetector.SimpleOnGestureListener() {
 
+    private var screenWidth = 0
+    private var screenHeight = 0
+    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private var maxVolume = 0
+
+    init {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        screenWidth = windowManager.defaultDisplay.width
+        screenHeight = windowManager.defaultDisplay.height
+        maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+    }
+
+    override fun onDown(e: MotionEvent): Boolean {
+        activityRef.get()?.playerFragment?.hideVolumeNow()
+        return true
+    }
+
+    override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
+        activityRef.get()?.let { activity ->
+            activity.showFragment(activity.menuFragment)
+        }
+        return true
+    }
+
+    override fun onDoubleTap(e: MotionEvent): Boolean {
+        activityRef.get()?.showSetting()
+        return true
+    }
+
+    override fun onLongPress(e: MotionEvent) {
+        activityRef.get()?.showProgram()
+    }
+
+    override fun onFling(
+        e1: MotionEvent?,
+        e2: MotionEvent,
+        velocityX: Float,
+        velocityY: Float
+    ): Boolean {
+        val activity = activityRef.get() ?: return super.onFling(e1, e2, velocityX, velocityY)
+
+        val oldX = e1?.rawX ?: 0f
+        val oldY = e1?.rawY ?: 0f
+        val newX = e2.rawX
+        val newY = e2.rawY
+        
+        if (oldX > screenWidth / 3 && oldX < screenWidth * 2 / 3 && abs(newX - oldX) < abs(newY - oldY)) {
+            if (velocityY > 0) {
+                if ((!activity.menuFragment.isAdded || activity.menuFragment.isHidden) && 
+                    (!activity.settingFragment.isAdded || activity.settingFragment.isHidden)) {
+                    activity.prev()
+                }
+            }
+            if (velocityY < 0) {
+                if ((!activity.menuFragment.isAdded || activity.menuFragment.isHidden) && 
+                    (!activity.settingFragment.isAdded || activity.settingFragment.isHidden)) {
+                    activity.next()
+                }
+            }
+        }
+
+        return super.onFling(e1, e2, velocityX, velocityY)
+    }
+
+    private var lastScrollTime: Long = 0
+    private var decayFactor: Float = 1.0f
+
+    override fun onScroll(
+        e1: MotionEvent?,
+        e2: MotionEvent,
+        distanceX: Float,
+        distanceY: Float
+    ): Boolean {
+        val activity = activityRef.get() ?: return super.onScroll(e1, e2, distanceX, distanceY)
+
+        val oldX = e1?.rawX ?: 0f
+        val oldY = e1?.rawY ?: 0f
+        val newX = e2.rawX
+        val newY = e2.rawY
+
+        if (oldX < screenWidth / 3) {
+            val currentTime = System.currentTimeMillis()
+            val deltaTime = currentTime - lastScrollTime
+            lastScrollTime = currentTime
+
+            decayFactor = 0.01f.coerceAtLeast(decayFactor - 0.03f * deltaTime)
+            val delta = ((oldY - newY) * decayFactor * 0.2 / screenHeight).toFloat()
+            adjustBrightness(delta, activity)
+            decayFactor = 1.0f
+            return super.onScroll(e1, e2, distanceX, distanceY)
+        }
+
+        if (oldX > screenWidth * 2 / 3 && abs(distanceY) > abs(distanceX)) {
+            val currentTime = System.currentTimeMillis()
+            val deltaTime = currentTime - lastScrollTime
+            lastScrollTime = currentTime
+
+            decayFactor = 0.01f.coerceAtLeast(decayFactor - 0.03f * deltaTime)
+            val delta = ((oldY - newY) * maxVolume * decayFactor * 0.2 / screenHeight).toInt()
+            adjustVolume(delta, activity)
+            decayFactor = 1.0f
+            return super.onScroll(e1, e2, distanceX, distanceY)
+        }
+
+        return super.onScroll(e1, e2, distanceX, distanceY)
+    }
+
+    private fun adjustVolume(deltaVolume: Int, activity: MainActivity) {
+        val currentVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        var newVolume = currentVolume + deltaVolume
+
+        if (newVolume < 0) {
+            newVolume = 0
+        } else if (newVolume > maxVolume) {
+            newVolume = maxVolume
+        }
+
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, newVolume, 0)
+
+        activity.playerFragment.setVolumeMax(maxVolume * 100)
+        activity.playerFragment.setVolume(newVolume.toInt() * 100, true)
+        activity.playerFragment.showVolume(View.VISIBLE)
+    }
+
+    private fun adjustBrightness(deltaBrightness: Float, activity: MainActivity) {
+        val window = activity.window
+        var brightness = window.attributes.screenBrightness
+
+        brightness += deltaBrightness
+        brightness = 0.1f.coerceAtLeast(0.9f.coerceAtMost(brightness))
+
+        val attributes = window.attributes.apply {
+            screenBrightness = brightness
+        }
+        window.attributes = attributes
+
+        activity.playerFragment.setVolumeMax(100)
+        activity.playerFragment.setVolume((brightness * 100).toInt())
+        activity.playerFragment.showVolume(View.VISIBLE)
+    }
+}
+    
     fun onPlayEnd() {
         val tvModel = viewModel.groupModel.getCurrent()!!
         if (SP.repeatInfo) {
@@ -535,6 +690,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val hideMenu = Runnable {
+        /***
         if (!isFinishing && !supportFragmentManager.isStateSaved) {
             if (!menuFragment.isHidden) {
                 supportFragmentManager.beginTransaction()
@@ -542,6 +698,16 @@ class MainActivity : AppCompatActivity() {
                     .commitAllowingStateLoss()
             }
         }
+        ***/
+        activityRef.get()?.let { activity ->
+        if (!activity.isFinishing && !activity.supportFragmentManager.isStateSaved) {
+            if (!activity.menuFragment.isHidden) {
+                activity.supportFragmentManager.beginTransaction()
+                    .hide(activity.menuFragment)
+                    .commitAllowingStateLoss()
+            }
+        }
+    }
     }
 
     fun switchSoftDecode() {
@@ -558,8 +724,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val hideSetting = Runnable {
-        hideFragment(settingFragment)
-        showTimeFragment()
+        //hideFragment(settingFragment)
+        //showTimeFragment()
+        activityRef.get()?.let { activity ->
+            activity.hideFragment(activity.settingFragment)
+            activity.showTimeFragment()
+        }
     }
 
     fun showTimeFragment() {

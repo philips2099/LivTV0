@@ -274,7 +274,7 @@ class PlayerFragment : Fragment() {
             player?.stop()
         }
     }
-
+/********************************
     override fun onDestroy() {
         super.onDestroy()
         player?.release()
@@ -284,7 +284,19 @@ class PlayerFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+*************************************/
+    override fun onDestroyView() {
+        player?.release()
+        player = null
+        _binding = null
+         super.onDestroyView()
+    }
 
+    override fun onDestroy() {
+        // 已经在 onDestroyView 中释放
+        super.onDestroy()
+     }
+    
     companion object {
         private const val TAG = "PlayerFragment"
     }
