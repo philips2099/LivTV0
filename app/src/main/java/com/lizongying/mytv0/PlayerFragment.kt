@@ -155,6 +155,10 @@ class PlayerFragment : Fragment() {
                         tv.retryTimes = 0
                     } else {
                         tv.setErrInfo(R.string.play_error.getString())
+                        // 3秒后自动切换到下一个频道
+                        handler.postDelayed({
+                            (activity as MainActivity).next()
+                        }, 3000)
                     }
                 }
             }
