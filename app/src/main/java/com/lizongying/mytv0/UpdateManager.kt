@@ -261,7 +261,7 @@ class UpdateManager(
         private const val TAG = "UpdateManager"
         private const val BUFFER_SIZE = 8192
         private const val VERSION_URL =
-            "https://raw.githubusercontent.com/philips2099/LivTV0/blob/main/version.json"
+            "https://raw.githubusercontent.com/philips2099/LivTV0/main/version.json"
 
     }
 
