@@ -25,7 +25,9 @@ import kotlin.math.min
 
 class TVModel(var tv: TV) : ViewModel() {
     var retryTimes = 0
-    var retryMaxTimes = 10
+
+    /*****修改重试10->3，避免重试很久，最多3次，不播放就换下家***/
+    var retryMaxTimes = 3
     var programUpdateTime = 0L
 
     private var _groupIndex = 0

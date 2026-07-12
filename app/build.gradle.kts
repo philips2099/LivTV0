@@ -43,6 +43,24 @@ android {
     }
 }
 
+fun getTag22(): String {
+    return try {
+        // 获取所有以 v 开头的标签，按版本号排序取最新
+        val process = Runtime.getRuntime().exec("git tag --list \"v*\" --sort=-v:refname")
+        process.waitFor()
+        val tags = process.inputStream.bufferedReader().use(BufferedReader::readText)
+            .trim().split("\n").filter { it.isNotEmpty() }
+
+        if (tags.isNotEmpty()) {
+            tags.first().removePrefix("v")
+        } else {
+            ""
+        }
+    } catch (_: Exception) {
+        ""
+    }
+}
+
 fun getTag(): String {
     return try {
         val process = Runtime.getRuntime().exec("git describe --tags --always")
