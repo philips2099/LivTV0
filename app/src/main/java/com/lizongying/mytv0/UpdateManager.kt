@@ -123,7 +123,13 @@ class UpdateManager(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             context.registerReceiver(downloadReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED)
         } else {
-            context.registerReceiver(downloadReceiver, intentFilter)
+            //context.registerReceiver(downloadReceiver, intentFilter)
+            val flags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                Context.RECEIVER_NOT_EXPORTED
+            } else {
+                0
+            }
+            context.registerReceiver(downloadReceiver, intentFilter, flags)
         }
 
         getDownloadProgress(context, downloadReference) { progress ->
@@ -255,7 +261,8 @@ class UpdateManager(
         private const val TAG = "UpdateManager"
         private const val BUFFER_SIZE = 8192
         private const val VERSION_URL =
-            "https://raw.githubusercontent.com/lizongying/my-tv-0/main/version.json"
+            "https://raw.githubusercontent.com/philips2099/LivTV0/blob/main/version.json"
+
     }
 
     override fun onConfirm() {
