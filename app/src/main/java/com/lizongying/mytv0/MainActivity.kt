@@ -249,8 +249,9 @@ class MainActivity : AppCompatActivity() {
                     } else {
                         Log.i(TAG, "${tvModel.tv.title} ${tvModel.errInfo.value.toString()}")
                         hideFragment(playerFragment)
-                        errorFragment.setMsg(tvModel.errInfo.value.toString())
+                        //调整一下顺序，先Show再setMsg，尝试修复报错显示
                         showFragment(errorFragment)
+                        errorFragment.setMsg(tvModel.errInfo.value.toString())
                     }
                 }
             }
@@ -1018,7 +1019,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun attachBaseContext(base: Context) {
         try {
-            val locale = Locale.TRADITIONAL_CHINESE
+            val locale = Locale.SIMPLIFIED_CHINESE
             val config = Configuration()
             config.setLocale(locale)
             super.attachBaseContext(
