@@ -28,7 +28,7 @@ class ErrorFragment : Fragment() {
         binding.msg.layoutParams = layoutParams
 
         binding.msg.textSize = application.px2PxFont(binding.msg.textSize)
-        //注释掉，尝试修复 播放错误时，没有显示错误信息的问题
+        //注释掉，尝试修复 播放错误时，没有显示错误信息的问题  testaaaaa
         //_binding = ErrorBinding.inflate(inflater, container, false)
         return binding.root
     }
