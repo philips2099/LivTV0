@@ -164,10 +164,14 @@ class MainViewModel : ViewModel() {
                 name = tvModel.tv.title
             }
             val url = tvModel.tv.logo
+            /*****
             var urls =
-                listOf(
+                 listOf(
                     "https://live.fanmingming.cn/tv/$name.png"
                 ) + getUrls("https://raw.githubusercontent.com/fanmingming/live/main/tv/$name.png")
+            ****/
+            var urls = getUrls("https://raw.githubusercontent.com/fanmingming/live/main/tv/$name.png")
+
             if (url.isNotEmpty()) {
                 urls = (getUrls(url) + urls).distinct()
             }

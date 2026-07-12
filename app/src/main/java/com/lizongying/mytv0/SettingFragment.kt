@@ -52,7 +52,7 @@ class SettingFragment : Fragment() {
         _binding = SettingBinding.inflate(inflater, container, false)
 
         binding.versionName.text = "v${context.appVersionName}"
-        binding.version.text = "https://github.com/philips2099/my-tv-0"
+        binding.version.text = "https://github.com/philips2099/LivTV0"
 
         val switchChannelReversal = _binding?.switchChannelReversal
         switchChannelReversal?.isChecked = SP.channelReversal

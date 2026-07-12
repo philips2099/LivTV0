@@ -163,6 +163,81 @@ object Utils {
     }
 
     fun getUrls(url: String): List<String> {
+        return when {
+            // GitHub raw URL: https://raw.githubusercontent.com/user/repo/branch/path
+            url.startsWith("https://raw.githubusercontent.com/") -> {
+                // 提取路径：raw.githubusercontent.com/user/repo/branch/path
+                val path = url.removePrefix("https://raw.githubusercontent.com/")
+                // 分割：user/repo/branch/path
+                val parts = path.split("/", limit = 3)
+                if (parts.size >= 3) {
+                    val user = parts[0]
+                    val repo = parts[1]
+                    val branchAndPath = parts[2]
+                    //https://gcore.jsdelivr.net
+                    // 转换为 jsDelivr 格式：https://cdn.jsdelivr.net/gh/user/repo@branch/path
+                    val jsdelivrUrl = "https://gcore.jsdelivr.net/gh/$user/$repo@$branchAndPath"
+
+                    listOf(
+                        jsdelivrUrl,  // 主地址
+                        "https://cdn.jsdelivr.net/gh/$user/$repo@$branchAndPath",  // 国内镜像1
+                        "https://cdn.jsdelivr.fyi/gh/$user/$repo@$branchAndPath" ,  // 备用镜像
+                        "https://cdn.jsdmirror.com/gh/$user/$repo@$branchAndPath"  // 国内镜像2
+                    )
+                } else {
+                    listOf(url)  // 格式不正确，返回原 URL
+                }
+            }
+
+            // GitHub blob URL: https://github.com/user/repo/blob/branch/path
+            url.startsWith("https://github.com/") && url.contains("/blob/") -> {
+                // 提取路径：github.com/user/repo/blob/branch/path
+                val path = url.removePrefix("https://github.com/")
+                // 替换 /blob/ 为 @
+                val jsdelivrPath = path.replace("/blob/", "@")
+                // 转换为 jsDelivr 格式：https://cdn.jsdelivr.net/gh/user/repo@branch/path
+                val jsdelivrUrl = "https://gcore.jsdelivr.net/gh/$.jsdelivrPath"
+
+                listOf(
+                    jsdelivrUrl,  // 主地址
+                    "https://cdn.jsdelivr.net/gh/$.jsdelivrPath",  // 国内镜像1
+                    "https://cdn.jsdelivr.fyi/gh/$.jsdelivrPath",  // 国内镜像2
+                    "https://cdn.jsdmirror.com/gh/$.jsdelivrPath"   // 国内镜像3
+
+                )
+            }
+
+            // jsDelivr URL 本身
+            url.startsWith("https://cdn.jsdelivr.net/") -> {
+                val path = url.removePrefix("https://cdn.jsdelivr.net/")
+                listOf(
+                    url,  // 原 URL
+                    "https://gcore.jsdelivr.net/$path",
+                    "https://cdn.jsdelivr.fyi/$path",
+                    "https://cdn.jsdmirror.com/$path"
+                )
+            }
+
+            // 其他 GitHub URL（非 raw/blob）
+            url.startsWith("https://github.com/") -> {
+                // 保持原有的代理方式
+                listOf(
+                    "https://gh.llkk.cc/",
+                    "https://github.moeyy.xyz/",
+                    "https://mirror.ghproxy.com/",
+                    "https://ghproxy.cn/",
+                    "https://ghproxy.net/"
+                ).map { "$it$url" }
+            }
+
+            // 其他 URL 保持不变
+            else -> {
+                listOf(url)
+            }
+        }
+    }
+    /*************废弃用CDN代替代理方式****
+    fun getUrls(url: String): List<String> {
         return if (url.startsWith("https://raw.githubusercontent.com") || url.startsWith("https://github.com")) {
             listOf(
                 "https://gh.llkk.cc/",
@@ -185,4 +260,5 @@ object Utils {
             listOf(url)
         }
     }
+    *************************/
 }
