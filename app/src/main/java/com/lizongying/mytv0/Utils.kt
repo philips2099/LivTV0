@@ -196,13 +196,13 @@ object Utils {
                 // 替换 /blob/ 为 @
                 val jsdelivrPath = path.replace("/blob/", "@")
                 // 转换为 jsDelivr 格式：https://cdn.jsdelivr.net/gh/user/repo@branch/path
-                val jsdelivrUrl = "https://gcore.jsdelivr.net/gh/$.jsdelivrPath"
+                val jsdelivrUrl = "https://gcore.jsdelivr.net/gh/$jsdelivrPath"
 
                 listOf(
                     jsdelivrUrl,  // 主地址
-                    "https://cdn.jsdelivr.net/gh/$.jsdelivrPath",  // 国内镜像1
-                    "https://cdn.jsdelivr.fyi/gh/$.jsdelivrPath",  // 国内镜像2
-                    "https://cdn.jsdmirror.com/gh/$.jsdelivrPath"   // 国内镜像3
+                    "https://cdn.jsdelivr.net/gh/$jsdelivrPath",  // 国内镜像1
+                    "https://cdn.jsdelivr.fyi/gh/$jsdelivrPath",  // 国内镜像2
+                    "https://cdn.jsdmirror.com/gh/$jsdelivrPath"   // 国内镜像3
 
                 )
             }
