@@ -389,6 +389,7 @@ class MainViewModel : ViewModel() {
         val g = Gua()
         if (g.verify(str)) {
             string = g.decode(str)
+            Log.i("CHANNELS_RAW", string.take(8000))  // ← 加这行，打印前 8000 个字符
         }
 
         if (string.isEmpty()) {

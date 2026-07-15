@@ -162,8 +162,10 @@ object Utils {
         return "http://$url"
     }
 
+    /***************CDN 缓存更新不及时，还是换回 代理模式***
     fun getUrls(url: String): List<String> {
         return when {
+
             // GitHub raw URL: https://raw.githubusercontent.com/user/repo/branch/path
             url.startsWith("https://raw.githubusercontent.com/") -> {
                 // 提取路径：raw.githubusercontent.com/user/repo/branch/path
@@ -179,6 +181,7 @@ object Utils {
                     val jsdelivrUrl = "https://gcore.jsdelivr.net/gh/$user/$repo@$branchAndPath"
 
                     listOf(
+                        url,
                         jsdelivrUrl,  // 主地址
                         "https://cdn.jsdelivr.net/gh/$user/$repo@$branchAndPath",  // 国内镜像1
                         "https://cdn.jsdelivr.fyi/gh/$user/$repo@$branchAndPath" ,  // 备用镜像
@@ -207,25 +210,24 @@ object Utils {
                 )
             }
 
-            // jsDelivr URL 本身
-            url.startsWith("https://cdn.jsdelivr.net/") -> {
-                val path = url.removePrefix("https://cdn.jsdelivr.net/")
+            url.startsWith("https://raw.githubusercontent.com/") -> {
+                // 保持原有的代理方式
                 listOf(
-                    url,  // 原 URL
-                    "https://gcore.jsdelivr.net/$path",
-                    "https://cdn.jsdelivr.fyi/$path",
-                    "https://cdn.jsdmirror.com/$path"
-                )
+                    "https://gh-proxy.com/",
+                    "https://gh.chjina.com/",
+                    "https://gh.nxnow.top/",
+                    "https://gh.geekertao.top/",
+                    "https://ghproxy.net/"
+                ).map { "$it$url" }
             }
-
             // 其他 GitHub URL（非 raw/blob）
             url.startsWith("https://github.com/") -> {
                 // 保持原有的代理方式
                 listOf(
-                    "https://gh.llkk.cc/",
-                    "https://github.moeyy.xyz/",
-                    "https://mirror.ghproxy.com/",
-                    "https://ghproxy.cn/",
+                    "https://gh-proxy.com/",
+                    "https://gh.chjina.com/",
+                    "https://gh.nxnow.top/",
+                    "https://gh.geekertao.top/",
                     "https://ghproxy.net/"
                 ).map { "$it$url" }
             }
@@ -236,23 +238,16 @@ object Utils {
             }
         }
     }
-    /*************废弃用CDN代替代理方式****
+             *******************************************/
+    /*************废弃用CDN代替代理方式****/
     fun getUrls(url: String): List<String> {
         return if (url.startsWith("https://raw.githubusercontent.com") || url.startsWith("https://github.com")) {
             listOf(
-                "https://gh.llkk.cc/",
-                "https://github.moeyy.xyz/",
-                "https://mirror.ghproxy.com/",
-                "https://ghproxy.cn/",
-                "https://ghproxy.net/",
-                "https://ghproxy.click/",
-                "https://ghproxy.com/",
-                "https://github.moeyy.cn/",
-                "https://gh-proxy.llyke.com/",
-                "https://www.ghproxy.cc/",
-                "https://cf.ghproxy.cc/",
-                "https://ghp.ci/",
-                "https://ghfast.top"
+                "https://gh-proxy.com/",
+                "https://gh.chjina.com/",
+                "https://gh.nxnow.top/",
+                "https://gh.geekertao.top/",
+                "https://ghproxy.net/"
             ).map {
                 "$it$url"
             }
@@ -260,5 +255,5 @@ object Utils {
             listOf(url)
         }
     }
-    *************************/
+
 }

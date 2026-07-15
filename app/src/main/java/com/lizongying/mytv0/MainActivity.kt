@@ -244,6 +244,8 @@ class MainActivity : AppCompatActivity() {
                     hideFragment(loadingFragment)
                     if (tvModel.errInfo.value == "") {
                         Log.i(TAG, "${tvModel.tv.title} playing")
+                        // 改成这样，就能看到正在播放的视频地址
+                        Log.i(TAG, "${tvModel.tv.title} playing, video url=${tvModel.getVideoUrl()}")
                         hideFragment(errorFragment)
                         showFragment(playerFragment)
                     } else {
