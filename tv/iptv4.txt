@@ -33,13 +33,12 @@ CCTV风云足球,http://27.41.245.32:801/hls/906/index.m3u8
 高尔夫网球,http://38.75.136.137:98/gslb/dsdqpub/gefwq.m3u8?auth=testpub
 
 卫视频道,#genre#
-浙江卫视,http://ali-xwl.cztv.com/live/channel011080Plxw.m3u8
-浙江卫视4K,http://go.bkpcp.top/mg/zjws
+浙江卫视,http://ali-xwl.cztv.com/live/channel011080Plxw.m3u8,http://go.bkpcp.top/mg/zjws
 江苏卫视,http://go.bkpcp.top/mg/jsws
-湖南卫视,http://hmfs.f3322.net:3388/hls/22/index.m3u8,http://go.bkpcp.top/mg/hunws
+湖南卫视,http://cdn6.bkpcp.top/tl/tuiliu.php?id=hunws,http://go.bkpcp.top/mg/hunws
 东方卫视,http://go.bkpcp.top/mg/dfws
 安徽卫视,http://go.bkpcp.top/mg/ahws
-深圳卫视,http://38.75.136.137:98/gslb/dsdqpub/szwshd.m3u8?auth=testpub
+深圳卫视,http://go.bkpcp.top/mg/szws,http://cdn6.bkpcp.top/tl/tuiliu.php?id=szws,http://38.75.136.137:98/gslb/dsdqpub/szwshd.m3u8?auth=testpub
 北京卫视,http://go.bkpcp.top/mg/bjws
 广东卫视,http://go.bkpcp.top/mg/gdws
 广西卫视,http://go.bkpcp.top/mg/gxws
@@ -51,7 +50,7 @@ CCTV风云足球,http://27.41.245.32:801/hls/906/index.m3u8
 重庆卫视,http://go.bkpcp.top/mg/cqws
 贵州卫视,http://go.bkpcp.top/mg/gzws
 云南卫视,http://go.bkpcp.top/mg/ynws
-山东卫视,http://38.75.136.137:98/gslb/dsdqpub/sdwshd.m3u8?auth=testpub
+山东卫视,http://go.bkpcp.top/mg/sdws,http://cdn6.bkpcp.top/tl/tuiliu.php?id=sdws,http://38.75.136.137:98/gslb/dsdqpub/sdwshd.m3u8?auth=testpub
 辽宁卫视,http://go.bkpcp.top/mg/lnws
 黑龙江卫视,http://go.bkpcp.top/mg/hljws
 吉林卫视,http://go.bkpcp.top/mg/jlws
